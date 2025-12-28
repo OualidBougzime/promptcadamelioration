@@ -1,0 +1,7 @@
+result = (cq.Workplane("XY")
+             .rect(200, 100)
+             .extrude(15)
+             .faces(">Z").workplane()
+             .cylinder(6, 120)
+             .cutThruAll()
+             .union(result))

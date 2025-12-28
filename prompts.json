@@ -1,0 +1,461 @@
+{
+  "metadata": {
+    "version": "2.0",
+    "created": "2024-12-03",
+    "description": "Comprehensive test prompts - corrected complexity levels",
+    "total_prompts": 23
+  },
+  "prompts": [
+    {
+      "id": 1,
+      "name": "cube",
+      "category": "simple",
+      "complexity": "simple",
+      "source": "new",
+      "enabled": true,
+      "prompt": "Create a cube 50 mm × 50 mm × 50 mm.",
+      "expected": {
+        "shape_type": "box",
+        "should_be_hollow": false,
+        "required_operations": [ "box" ]
+      }
+    },
+    {
+      "id": 2,
+      "name": "cylinder",
+      "category": "simple",
+      "complexity": "simple",
+      "source": "new",
+      "enabled": true,
+      "prompt": "Create a cylinder diameter 40 mm height 60 mm.",
+      "expected": {
+        "shape_type": "cylinder",
+        "should_be_hollow": false,
+        "required_operations": [ "circle", "extrude" ]
+      }
+    },
+    {
+      "id": 3,
+      "name": "cone",
+      "category": "simple",
+      "complexity": "simple",
+      "source": "new",
+      "enabled": true,
+      "prompt": "Create a cone base diameter 50 mm height 60 mm.",
+      "expected": {
+        "shape_type": "cone",
+        "should_be_hollow": false,
+        "required_operations": [ "circle", "loft" ]
+      }
+    },
+    {
+      "id": 4,
+      "name": "sphere",
+      "category": "simple",
+      "complexity": "simple",
+      "source": "new",
+      "enabled": true,
+      "prompt": "Create a sphere diameter 80 mm.",
+      "expected": {
+        "shape_type": "sphere",
+        "should_be_hollow": false,
+        "required_operations": [ "sphere" ]
+      }
+    },
+    {
+      "id": 5,
+      "name": "arc",
+      "category": "simple",
+      "complexity": "simple",
+      "source": "new",
+      "enabled": true,
+      "prompt": "Create an arc radius 60 mm sweep 210 deg.",
+      "expected": {
+        "shape_type": "arc",
+        "should_be_hollow": false,
+        "required_operations": [ "threePointArc", "radiusArc" ]
+      }
+    },
+    {
+      "id": 6,
+      "name": "torus",
+      "category": "simple",
+      "complexity": "simple",
+      "source": "new",
+      "enabled": true,
+      "prompt": "Create a torus major radius 50 mm minor radius 8 mm.",
+      "expected": {
+        "shape_type": "torus",
+        "should_be_hollow": false,
+        "required_operations": [ "circle", "revolve" ]
+      }
+    },
+    {
+      "id": 7,
+      "name": "pipe",
+      "category": "medium",
+      "complexity": "medium",
+      "source": "multi-agent",
+      "enabled": true,
+      "prompt": "Create a pipe outer radius 20 mm inner radius 15 mm length 150 mm with 1 mm chamfer on both ends",
+      "expected": {
+        "shape_type": "pipe",
+        "should_be_hollow": true,
+        "required_operations": [ "circle", "extrude", "cut", "chamfer" ]
+      }
+    },
+    {
+      "id": 9,
+      "name": "screw",
+      "category": "medium",
+      "complexity": "medium",
+      "source": "multi-agent",
+      "enabled": true,
+      "prompt": "Create a screw with cylindrical shaft radius 4 mm length 50 mm, hexagonal head diameter 12 mm height 5 mm",
+      "expected": {
+        "shape_type": "screw",
+        "should_be_hollow": false,
+        "required_operations": [ "circle", "extrude", "polygon", "union" ]
+      }
+    },
+    {
+      "id": 10,
+      "name": "table",
+      "category": "medium",
+      "complexity": "medium",
+      "source": "multi-agent",
+      "enabled": true,
+      "prompt": "Create a table: make a rectangular top 200 mm × 100 mm × 15 mm, add four cylindrical legs diameter 12 mm height 120 mm inset 15 mm from each corner under the top, and union all parts.",
+      "expected": {
+        "shape_type": "table",
+        "should_be_hollow": false,
+        "required_operations": [ "box", "circle", "extrude", "translate", "union" ]
+      }
+    },
+    {
+      "id": 11,
+      "name": "bowl",
+      "category": "medium",
+      "complexity": "medium",
+      "source": "multi-agent",
+      "enabled": true,
+      "prompt": "Create a hemispherical bowl by revolving a semicircle radius 40 mm to form a hemisphere, then shell 3 mm wall thickness",
+      "expected": {
+        "shape_type": "bowl",
+        "should_be_hollow": true,
+        "required_operations": [ "sphere", "shell", "cut" ]
+      }
+    },
+    {
+      "id": 12,
+      "name": "vase",
+      "category": "medium",
+      "complexity": "medium",
+      "source": "multi-agent",
+      "enabled": true,
+      "prompt": "Create a vase by revolving a smooth profile with radius 30 mm at base, 22 mm at mid-height 60 mm, and 35 mm at top 120 mm",
+      "expected": {
+        "shape_type": "vase",
+        "should_be_hollow": true,
+        "required_operations": [ "loft", "revolve", "shell" ]
+      }
+    },
+    {
+      "id": 13,
+      "name": "spring",
+      "category": "medium",
+      "complexity": "medium",
+      "source": "multi-agent",
+      "enabled": true,
+      "prompt": "Create a helical spring by sweeping a circle radius 1.5 mm along a right-hand helix with major radius 20 mm, pitch 8 mm, total height 80 mm",
+      "expected": {
+        "shape_type": "spring",
+        "should_be_hollow": false,
+        "required_operations": [ "helix", "sweep", "circle" ]
+      }
+    },
+    {
+      "id": 14,
+      "name": "bunny",
+      "category": "complex",
+      "complexity": "complex",
+      "source": "multi-agent",
+      "enabled": true,
+      "prompt": "Import and display the Stanford bunny mesh from an STL file",
+      "expected": {
+        "shape_type": "mesh_import",
+        "should_be_hollow": false,
+        "required_operations": [ "importers", "importStl" ]
+      }
+    },
+    {
+      "id": 15,
+      "name": "splint",
+      "category": "complex",
+      "complexity": "complex",
+      "source": "cadam-x",
+      "application_type": "splint",
+      "enabled": true,
+      "prompt": "Create a resting hand splint for wrist immobilization with three anatomically-connected sections:\n\nSECTION 1 - Forearm support:\n- Length: 150mm\n- Width: tapers from 70mm at proximal end to 60mm at wrist\n- Curvature: 5mm palmar curve for natural wrist position\n\nSECTION 2 - Palm platform:\n- Length: 80mm\n- Width: constant 75mm (widest section)\n- Angle: 20 degrees upward extension from forearm axis\n- Curvature: 8mm transverse arch for palm contour\n\nSECTION 3 - Finger support:\n- Length: 40mm\n- Width: constant 65mm\n- Position: continues palm angle\n- Curvature: 3mm for MCP joint clearance\n\nMATERIAL & STRUCTURE:\n- Wall thickness: 3.5mm for rigidity\n- Smooth filleted transitions: 8mm radius between all sections\n- Total assembled length: 270mm\n\nVENTILATION:\n- Perforation pattern: 6mm diameter holes\n- Grid layout: 10 columns × 3 rows\n\nSTRAP ATTACHMENT:\n- 3 slots for velcro straps\n- Slot dimensions: 25mm wide × 3mm deep\n- Positions: 50mm, 150mm, 220mm from proximal end",
+      "expected": {
+        "shape_type": "splint",
+        "should_be_hollow": false,
+        "required_operations": [ "box", "loft", "fillet", "union", "translate", "rotate" ]
+      }
+    },
+    {
+      "id": 16,
+      "name": "stent",
+      "category": "complex",
+      "complexity": "complex",
+      "source": "cadam-x",
+      "application_type": "stent",
+      "enabled": true,
+      "prompt": "Create a vascular stent with zigzag pattern:\n\nDIMENSIONS:\n- Inner diameter: 8mm\n- Wall thickness: 0.3mm\n- Total length: 30mm\n\nPATTERN:\n- Zigzag strut pattern with 12 peaks per circumference\n- Strut width: 0.15mm\n- Peak amplitude: 1.5mm from center\n- Axial spacing: 2.5mm between rows\n- Total of 10 rows along length\n\nCONNECTIONS:\n- Bridge connectors every 3rd peak\n- Connector width: 0.12mm\n- Smooth fillets at all junctions: 0.05mm radius\n\nSTRUCTURE:\n- Open lattice design for flexibility\n- Uniform wall thickness throughout\n- Rounded strut cross-sections for biocompatibility",
+      "expected": {
+        "shape_type": "stent",
+        "should_be_hollow": true,
+        "required_operations": [ "circle", "polygon", "loft", "pattern", "fillet" ]
+      }
+    },
+    {
+      "id": 17,
+      "name": "lattice",
+      "category": "complex",
+      "complexity": "complex",
+      "source": "cadam-x",
+      "application_type": "lattice",
+      "enabled": true,
+      "prompt": "Create a cubic lattice structure:\n\nOVERALL DIMENSIONS:\n- Cube size: 50mm × 50mm × 50mm\n- Unit cell size: 5mm × 5mm × 5mm\n- Total cells: 10 × 10 × 10 = 1000 cells\n\nLATTICE GEOMETRY:\n- Type: Body-centered cubic (BCC)\n- Strut diameter: 0.8mm\n- Node diameter: 1.2mm at intersections\n\nSTRUT PATTERN:\n- 8 corner struts per cell connecting to center node\n- Center node connects to 8 adjacent cell centers\n- Smooth transitions at all nodes\n\nBOUNDARY:\n- Solid skin: 1mm thick on all six faces\n- Smooth integration between skin and internal lattice\n- Chamfer edges: 2mm radius\n\nOPTIMIZATION:\n- Remove internal material for weight reduction\n- Maintain structural integrity at boundaries\n- Target porosity: 70%",
+      "expected": {
+        "shape_type": "lattice",
+        "should_be_hollow": false,
+        "required_operations": [ "box", "circle", "pattern", "union", "shell" ]
+      }
+    },
+    {
+      "id": 18,
+      "name": "facade",
+      "category": "complex",
+      "complexity": "complex",
+      "source": "cadam-x",
+      "application_type": "facade",
+      "enabled": true,
+      "prompt": "Create an architectural facade panel with parametric voronoi pattern:\n\nPANEL DIMENSIONS:\n- Width: 2000mm\n- Height: 3000mm\n- Base thickness: 50mm\n\nVORONOI PATTERN:\n- 25 random seed points distributed across panel\n- Cell walls thickness: 30mm\n- Depth variation: ranges from 10mm (shallow) to 150mm (deep)\n- Organic, non-uniform distribution\n\nDEPTH GRADIENT:\n- Center cells: maximum depth (150mm)\n- Edge cells: minimum depth (10mm)\n- Smooth transition creating 3D relief effect\n\nOPENINGS:\n- 8 circular perforations for light transmission\n- Diameter: 200mm each\n- Positions: distributed within deeper cells\n- Chamfered edges: 5mm radius\n\nMOUNTING:\n- 4 mounting brackets at corners\n- Bracket size: 100mm × 100mm × 20mm\n- Recessed 20mm into back face\n- M12 bolt holes in each bracket",
+      "expected": {
+        "shape_type": "facade",
+        "should_be_hollow": false,
+        "required_operations": [ "box", "extrude", "cut", "pattern", "fillet" ]
+      }
+    },
+    {
+      "id": 19,
+      "name": "gripper",
+      "category": "complex",
+      "complexity": "complex",
+      "source": "cadam-x",
+      "application_type": "gripper",
+      "enabled": true,
+      "prompt": "Create a medical gripper with two opposing jaws:\n\nBASE/HANDLE:\n- Cylindrical shaft: diameter 12mm, length 80mm\n- Ergonomic grip: add helical knurling pattern, pitch 2mm, depth 0.3mm\n- Mounting hole: M6 thread, 20mm deep from back end\n\nJAW ASSEMBLY:\n- Two identical curved jaws, mirror symmetric\n- Jaw length: 40mm from pivot point\n- Jaw width: 8mm at base, tapering to 4mm at tip\n- Inner surface: serrated with 0.5mm teeth, spacing 1mm\n- Curvature: 10mm radius arc for gentle closure\n\nPIVOT MECHANISM:\n- Pin diameter: 3mm\n- Pin position: 10mm from handle end\n- Jaw spacing at rest: 15mm between tips\n- Rotation range: ±30 degrees\n\nTIP DESIGN:\n- Rounded tips: 2mm radius for safety\n- Contact pads: 3mm × 3mm textured area\n- Pad pattern: 0.3mm diameter bumps, 0.5mm spacing\n\nSTRUCTURE:\n- Wall thickness: 2mm throughout\n- Filleted joints: 1mm radius at all connections\n- Weight optimization: hollow handle, 1.5mm wall",
+      "expected": {
+        "shape_type": "gripper",
+        "should_be_hollow": true,
+        "required_operations": [ "circle", "extrude", "loft", "mirror", "union", "pattern" ]
+      }
+    },
+    {
+      "id": 20,
+      "name": "heatsink",
+      "category": "complex",
+      "complexity": "complex",
+      "source": "cadam-x",
+      "application_type": "heatsink",
+      "enabled": true,
+      "prompt": "Create a heatsink with optimized fin array:\n\nBASE PLATE:\n- Dimensions: 80mm × 80mm × 5mm\n- Material contact surface: flat, smooth finish\n- 4 mounting holes: M3, positioned 5mm from each corner\n- Center clearance hole: 15mm diameter for component\n\nFIN ARRAY:\n- Number of fins: 20 parallel fins\n- Fin height: 40mm\n- Fin thickness: 1.5mm\n- Fin spacing: 3mm (for airflow)\n- Orientation: parallel to airflow direction\n\nFIN GEOMETRY:\n- Profile: straight vertical walls\n- Top surface: flat with 0.5mm radius edges\n- Base integration: smooth fillet 2mm radius to base plate\n- Surface area optimization: maximize for convection\n\nOPTIONAL FEATURES:\n- Central cut-out: 20mm × 20mm × 10mm deep for TIM application\n- Chamfered fin tips: 0.5mm × 45° to reduce vibration\n- Weight reduction: 3mm diameter holes through base (avoid mounting area)\n- Hole pattern: 5×5 grid, 15mm spacing\n\nASSEMBLY:\n- Total height: 45mm (base + fins)\n- Total mass target: <150g aluminum\n- Thermal contact area: 6400mm² (80×80)",
+      "expected": {
+        "shape_type": "heatsink",
+        "should_be_hollow": false,
+        "required_operations": [ "box", "extrude", "pattern", "fillet", "cut" ]
+      }
+    },
+    {
+      "id": 21,
+      "name": "honeycomb_panel",
+      "category": "complex",
+      "complexity": "complex",
+      "source": "cadam-x",
+      "application_type": "facade",
+      "enabled": true,
+      "prompt": "Create a honeycomb panel with hexagonal cells for lightweight architecture:\n\nPANEL DIMENSIONS:\n- Width: 300mm\n- Height: 380mm\n- Thickness: 40mm\n\nHEXAGONAL CELLS:\n- Cell size (side length): 12mm\n- Wall thickness: 2.2mm\n- Cell depth: 40mm (full depth through panel)\n- Pattern type: flat-top hexagons\n\nSTRUCTURE:\n- Only complete cells (cells entirely within panel boundaries)\n- No vertical ribs, pure honeycomb pattern\n- Corner fillet: 0mm (sharp edges)\n\nMATERIAL:\n- Aluminum-compatible geometry\n- Optimized for CNC milling or 3D printing",
+      "expected": {
+        "shape_type": "honeycomb_panel",
+        "should_be_hollow": true,
+        "required_operations": [ "polygon", "pattern", "extrude", "cut" ]
+      }
+    },
+    {
+      "id": 22,
+      "name": "hex_pyramid_facade",
+      "category": "complex",
+      "complexity": "complex",
+      "source": "cadam-x",
+      "application_type": "facade",
+      "enabled": true,
+      "prompt": "Create a hexagonal pyramid facade with triangular elements:\n\nHEX FRAME:\n- Hex radius: 60mm\n- Frame width: 8mm\n- Frame height: 10mm\n\nTRIANGULAR PYRAMIDS:\n- Triangle height: 55mm\n- Plate thickness: 2.4mm\n- 6 pyramids arranged in hexagonal pattern\n\nCONNECTING BARS:\n- Bar width: 8mm\n- Bar height: 10mm\n- Radial arrangement from center\n\nSTRUCTURE:\n- Architectural module\n- 3D relief pattern\n- Modern aesthetic",
+      "expected": {
+        "shape_type": "facade_module",
+        "should_be_hollow": false,
+        "required_operations": [ "polygon", "extrude", "loft", "pattern", "union" ]
+      }
+    },
+    {
+      "id": 23,
+      "name": "triangular_pavilion_louvres",
+      "category": "complex",
+      "complexity": "complex",
+      "source": "cadam-x",
+      "application_type": "pavilion",
+      "enabled": true,
+      "prompt": "Create a triangular pavilion with diagonal louvres:\n\nTRIANGLE BASE:\n- Width: 280mm\n- Height: 260mm\n- Thickness: 40mm\n- Corner fillet: 3mm\n\nLOUVRES (SLATS):\n- Angle: 35 degrees from horizontal\n- Pitch (spacing): 12mm perpendicular to slats\n- Slat width: 8mm\n- Slat depth (extrusion): 12mm\n- End radius: 3mm (rounded ends)\n- Layer 1 Z position: 6mm\n\nCONFIGURATION:\n- Single layer of diagonal slats\n- Boolean mode: union\n- Pattern clips to triangle shape",
+      "expected": {
+        "shape_type": "pavilion",
+        "should_be_hollow": false,
+        "required_operations": [ "polygon", "extrude", "pattern", "boolean", "fillet" ]
+      }
+    },
+    {
+      "id": 24,
+      "name": "sine_wave_fins_facade",
+      "category": "complex",
+      "complexity": "complex",
+      "source": "cadam-x",
+      "application_type": "facade",
+      "enabled": true,
+      "prompt": "Create a facade with sine wave undulating fins:\n\nPANEL DIMENSIONS:\n- Length: 420mm\n- Height: 180mm\n- Depth: 140mm\n\nFINS (RIBS):\n- Number of fins: 34\n- Fin thickness: 3mm\n- Arrangement: vertical fins following sine wave\n\nSINE WAVE PATTERN:\n- Amplitude: 40mm (wave height)\n- Period ratio: 0.9 (wavelength control)\n- Creates smooth undulating facade\n\nBASE STRUCTURE:\n- Base plate thickness: 6mm\n- Fins loft from base with sine offset\n- Clips to rectangular boundary",
+      "expected": {
+        "shape_type": "facade",
+        "should_be_hollow": false,
+        "required_operations": [ "box", "extrude", "pattern", "loft", "sineDeform" ]
+      }
+    }
+  ],
+  "categories": {
+    "simple": {
+      "description": "Basic geometric primitives - single operations",
+      "count": 6,
+      "prompts": [ "cube", "cylinder", "cone", "sphere", "arc", "torus" ]
+    },
+    "medium": {
+      "description": "Intermediate complexity - multiple operations, unions, cuts",
+      "count": 6,
+      "prompts": [ "pipe", "screw", "table", "bowl", "vase", "spring" ]
+    },
+    "complex": {
+      "description": "Advanced real-world applications with multiple features",
+      "count": 11,
+      "prompts": [
+        "bunny",
+        "splint",
+        "stent",
+        "lattice",
+        "facade",
+        "gripper",
+        "heatsink",
+        "honeycomb_panel",
+        "hex_pyramid_facade",
+        "triangular_pavilion_louvres",
+        "sine_wave_fins_facade"
+      ]
+    }
+  },
+  "test_suites": {
+    "quick_test": {
+      "description": "Fast validation - 5 simple tests",
+      "prompts": [ "cube", "cylinder", "sphere", "pipe", "screw" ]
+    },
+    "simple_only": {
+      "description": "All simple shapes - 6 tests",
+      "prompts": [ "cube", "cylinder", "cone", "sphere", "arc", "torus" ]
+    },
+    "medium_only": {
+      "description": "All medium complexity - 6 tests",
+      "prompts": [ "pipe", "screw", "table", "bowl", "vase", "spring" ]
+    },
+    "complex_only": {
+      "description": "All complex applications - 11 tests",
+      "prompts": [
+        "bunny",
+        "splint",
+        "stent",
+        "lattice",
+        "facade",
+        "gripper",
+        "heatsink",
+        "honeycomb_panel",
+        "hex_pyramid_facade",
+        "triangular_pavilion_louvres",
+        "sine_wave_fins_facade"
+      ]
+    },
+    "simple_medium": {
+      "description": "Simple + Medium - 12 tests",
+      "prompts": [
+        "cube",
+        "cylinder",
+        "cone",
+        "sphere",
+        "arc",
+        "torus",
+        "pipe",
+        "screw",
+        "table",
+        "bowl",
+        "vase",
+        "spring"
+      ]
+    },
+    "cadam_x_applications": {
+      "description": "CADAM-X applications only - 10 tests",
+      "prompts": [
+        "splint",
+        "stent",
+        "lattice",
+        "facade",
+        "gripper",
+        "heatsink",
+        "honeycomb_panel",
+        "hex_pyramid_facade",
+        "triangular_pavilion_louvres",
+        "sine_wave_fins_facade"
+      ]
+    },
+    "full_benchmark": {
+      "description": "Complete test suite - 23 tests",
+      "prompts": [
+        "cube",
+        "cylinder",
+        "cone",
+        "sphere",
+        "arc",
+        "torus",
+        "pipe",
+        "screw",
+        "table",
+        "bowl",
+        "vase",
+        "spring",
+        "bunny",
+        "splint",
+        "stent",
+        "lattice",
+        "facade",
+        "gripper",
+        "heatsink",
+        "honeycomb_panel",
+        "hex_pyramid_facade",
+        "triangular_pavilion_louvres",
+        "sine_wave_fins_facade"
+      ]
+    }
+  }
+}
