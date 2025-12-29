@@ -1620,35 +1620,33 @@ print("✅ STL: generated_facade.stl")
     def generate_lattice_bcc(analysis: Dict[str, Any]) -> str:
         """Template pour BCC lattice"""
         params = analysis.get('parameters', {})
-        
+
         block_x = params.get('block_x', 30.0)
         block_y = params.get('block_y', 30.0)
         block_z = params.get('block_z', 30.0)
         cell_size = params.get('cell_size', 15.0)
         strut_radius = params.get('strut_radius', 1.2)
         node_radius = params.get('node_radius', 1.86)
-        
+
         return f"""#!/usr/bin/env python3
+import cadquery as cq
+import math
+from pathlib import Path
+
 BLOCK_X = {block_x}
 BLOCK_Y = {block_y}
 BLOCK_Z = {block_z}
 A = {cell_size}
 R = {strut_radius}
 NODE_R = {node_radius}
-
-{{cell_size}}             # cell size
-{{strut_radius}}              # strut radius
-{{node_radius}}    # node sphere radius (1.3R-2.0R)
-OVERLAP = 0.9 * R    # strut extension at each end (0.5R-1.5R)
-
-output_dir = Path(__file__).parent / "output"
-output_dir.mkdir(exist_ok=True)
+OVERLAP = 0.9 * R
 
 EPS = 1e-6
 SCALE_KEY = 1_000_000
 
 def inside(p):
     x, y, z = p
+    return (-EPS <= x <= BLOCK_X + EPS) and (-EPS <= y <= BLOCK_Y + EPS) and (-EPS <= z <= BLOCK_Z + EPS)
 
 def pkey(p):
     return (int(round(p[0] * SCALE_KEY)), int(round(p[1] * SCALE_KEY)), int(round(p[2] * SCALE_KEY)))
@@ -1682,7 +1680,6 @@ def cylinder_between(p1, p2, radius, overlap=0.0):
         return None
     u = vunit(v)
 
-    # extend both ends so struts overlap *inside* node spheres
     p1e = vsub(p1, vmul(u, overlap))
     p2e = vadd(p2, vmul(u, overlap))
 
@@ -1694,7 +1691,6 @@ def cylinder_between(p1, p2, radius, overlap=0.0):
     return cq.Solid.makeCylinder(radius, L2, cq.Vector(*p1e), cq.Vector(*v2))
 
 def export_edges(edges):
-    # collect unique nodes
     nodes = set()
     for (p1, p2) in edges:
         nodes.add(pkey(p1))
@@ -1702,22 +1698,26 @@ def export_edges(edges):
 
     solids = []
 
-    # struts
     for (p1, p2) in edges:
         c = cylinder_between(p1, p2, R, overlap=OVERLAP)
         if c is not None:
             solids.append(c)
 
-    # node spheres (guaranteed connectivity)
     for nk in nodes:
         p = (nk[0]/SCALE_KEY, nk[1]/SCALE_KEY, nk[2]/SCALE_KEY)
+        solids.append(cq.Solid.makeSphere(NODE_R, cq.Vector(*p)))
 
-    # Create compound without fusion
     comp = cq.Compound.makeCompound(solids)
-    
-    cq.exporters.export(comp, OUT)
-    print(f"✅ STL: generated_lattice_bcc.stl  (struts={len(edges)}, nodes={len(nodes)})")
 
+    output_dir = Path(__file__).parent / "output"
+    output_dir.mkdir(exist_ok=True)
+    output_path = output_dir / "generated_lattice_bcc.stl"
+    cq.exporters.export(comp, str(output_path))
+    print(f"✅ STL: {{output_path}} (struts={{len(edges)}}, nodes={{len(nodes)}})")
+
+nx = int(BLOCK_X / A)
+ny = int(BLOCK_Y / A)
+nz = int(BLOCK_Z / A)
 
 def build_bcc():
     edges = set()
@@ -1726,7 +1726,7 @@ def build_bcc():
             for k in range(nz):
                 ox, oy, oz = i*A, j*A, k*A
                 c = (ox + A/2, oy + A/2, oz + A/2)
-                if not inside(c): 
+                if not inside(c):
                     continue
                 corners = [
                     (ox, oy, oz), (ox+A, oy, oz), (ox, oy+A, oz), (ox+A, oy+A, oz),
@@ -1745,35 +1745,33 @@ export_edges(build_bcc())
     def generate_lattice_fcc(analysis: Dict[str, Any]) -> str:
         """Template pour FCC lattice"""
         params = analysis.get('parameters', {})
-        
+
         block_x = params.get('block_x', 30.0)
         block_y = params.get('block_y', 30.0)
         block_z = params.get('block_z', 30.0)
         cell_size = params.get('cell_size', 15.0)
         strut_radius = params.get('strut_radius', 1.2)
         node_radius = params.get('node_radius', 1.86)
-        
+
         return f"""#!/usr/bin/env python3
+import cadquery as cq
+import math
+from pathlib import Path
+
 BLOCK_X = {block_x}
 BLOCK_Y = {block_y}
 BLOCK_Z = {block_z}
 A = {cell_size}
 R = {strut_radius}
 NODE_R = {node_radius}
-
-{{cell_size}}             # cell size
-{{strut_radius}}              # strut radius
-{{node_radius}}    # node sphere radius (1.3R-2.0R)
-OVERLAP = 0.9 * R    # strut extension at each end (0.5R-1.5R)
-
-output_dir = Path(__file__).parent / "output"
-output_dir.mkdir(exist_ok=True)
+OVERLAP = 0.9 * R
 
 EPS = 1e-6
 SCALE_KEY = 1_000_000
 
 def inside(p):
     x, y, z = p
+    return (-EPS <= x <= BLOCK_X + EPS) and (-EPS <= y <= BLOCK_Y + EPS) and (-EPS <= z <= BLOCK_Z + EPS)
 
 def pkey(p):
     return (int(round(p[0] * SCALE_KEY)), int(round(p[1] * SCALE_KEY)), int(round(p[2] * SCALE_KEY)))
@@ -1807,7 +1805,6 @@ def cylinder_between(p1, p2, radius, overlap=0.0):
         return None
     u = vunit(v)
 
-    # extend both ends so struts overlap *inside* node spheres
     p1e = vsub(p1, vmul(u, overlap))
     p2e = vadd(p2, vmul(u, overlap))
 
@@ -1819,7 +1816,6 @@ def cylinder_between(p1, p2, radius, overlap=0.0):
     return cq.Solid.makeCylinder(radius, L2, cq.Vector(*p1e), cq.Vector(*v2))
 
 def export_edges(edges):
-    # collect unique nodes
     nodes = set()
     for (p1, p2) in edges:
         nodes.add(pkey(p1))
@@ -1827,22 +1823,26 @@ def export_edges(edges):
 
     solids = []
 
-    # struts
     for (p1, p2) in edges:
         c = cylinder_between(p1, p2, R, overlap=OVERLAP)
         if c is not None:
             solids.append(c)
 
-    # node spheres (guaranteed connectivity)
     for nk in nodes:
         p = (nk[0]/SCALE_KEY, nk[1]/SCALE_KEY, nk[2]/SCALE_KEY)
+        solids.append(cq.Solid.makeSphere(NODE_R, cq.Vector(*p)))
 
-    # Create compound without fusion
     comp = cq.Compound.makeCompound(solids)
-    
-    cq.exporters.export(comp, OUT)
-    print(f"✅ STL: generated_lattice_fcc.stl  (struts={len(edges)}, nodes={len(nodes)})")
 
+    output_dir = Path(__file__).parent / "output"
+    output_dir.mkdir(exist_ok=True)
+    output_path = output_dir / "generated_lattice_fcc.stl"
+    cq.exporters.export(comp, str(output_path))
+    print(f"✅ STL: {{output_path}} (struts={{len(edges)}}, nodes={{len(nodes)}})")
+
+nx = int(BLOCK_X / A)
+ny = int(BLOCK_Y / A)
+nz = int(BLOCK_Z / A)
 
 def build_fcc():
     edges = set()
@@ -1878,35 +1878,33 @@ export_edges(build_fcc())
     def generate_lattice_diamond(analysis: Dict[str, Any]) -> str:
         """Template pour DIAMOND lattice"""
         params = analysis.get('parameters', {})
-        
+
         block_x = params.get('block_x', 30.0)
         block_y = params.get('block_y', 30.0)
         block_z = params.get('block_z', 30.0)
         cell_size = params.get('cell_size', 15.0)
         strut_radius = params.get('strut_radius', 1.2)
         node_radius = params.get('node_radius', 1.86)
-        
+
         return f"""#!/usr/bin/env python3
+import cadquery as cq
+import math
+from pathlib import Path
+
 BLOCK_X = {block_x}
 BLOCK_Y = {block_y}
 BLOCK_Z = {block_z}
 A = {cell_size}
 R = {strut_radius}
 NODE_R = {node_radius}
-
-{{cell_size}}             # cell size
-{{strut_radius}}              # strut radius
-{{node_radius}}    # node sphere radius (1.3R-2.0R)
-OVERLAP = 0.9 * R    # strut extension at each end (0.5R-1.5R)
-
-output_dir = Path(__file__).parent / "output"
-output_dir.mkdir(exist_ok=True)
+OVERLAP = 0.9 * R
 
 EPS = 1e-6
 SCALE_KEY = 1_000_000
 
 def inside(p):
     x, y, z = p
+    return (-EPS <= x <= BLOCK_X + EPS) and (-EPS <= y <= BLOCK_Y + EPS) and (-EPS <= z <= BLOCK_Z + EPS)
 
 def pkey(p):
     return (int(round(p[0] * SCALE_KEY)), int(round(p[1] * SCALE_KEY)), int(round(p[2] * SCALE_KEY)))
@@ -1940,7 +1938,6 @@ def cylinder_between(p1, p2, radius, overlap=0.0):
         return None
     u = vunit(v)
 
-    # extend both ends so struts overlap *inside* node spheres
     p1e = vsub(p1, vmul(u, overlap))
     p2e = vadd(p2, vmul(u, overlap))
 
@@ -1952,7 +1949,6 @@ def cylinder_between(p1, p2, radius, overlap=0.0):
     return cq.Solid.makeCylinder(radius, L2, cq.Vector(*p1e), cq.Vector(*v2))
 
 def export_edges(edges):
-    # collect unique nodes
     nodes = set()
     for (p1, p2) in edges:
         nodes.add(pkey(p1))
@@ -1960,22 +1956,26 @@ def export_edges(edges):
 
     solids = []
 
-    # struts
     for (p1, p2) in edges:
         c = cylinder_between(p1, p2, R, overlap=OVERLAP)
         if c is not None:
             solids.append(c)
 
-    # node spheres (guaranteed connectivity)
     for nk in nodes:
         p = (nk[0]/SCALE_KEY, nk[1]/SCALE_KEY, nk[2]/SCALE_KEY)
+        solids.append(cq.Solid.makeSphere(NODE_R, cq.Vector(*p)))
 
-    # Create compound without fusion
     comp = cq.Compound.makeCompound(solids)
-    
-    cq.exporters.export(comp, OUT)
-    print(f"✅ STL: generated_lattice_diamond.stl  (struts={len(edges)}, nodes={len(nodes)})")
 
+    output_dir = Path(__file__).parent / "output"
+    output_dir.mkdir(exist_ok=True)
+    output_path = output_dir / "generated_lattice_diamond.stl"
+    cq.exporters.export(comp, str(output_path))
+    print(f"✅ STL: {{output_path}} (struts={{len(edges)}}, nodes={{len(nodes)}})")
+
+nx = int(BLOCK_X / A)
+ny = int(BLOCK_Y / A)
+nz = int(BLOCK_Z / A)
 
 def build_diamond():
     basis_fcc=[(0.0,0.0,0.0),(0.0,0.5,0.5),(0.5,0.0,0.5),(0.5,0.5,0.0)]
@@ -1998,7 +1998,7 @@ def build_diamond():
             q=(px+dx*A, py+dy*A, pz+dz*A)
             if inside(q):
                 edges.add(ekey(p, q))
-    
+
     return [((a[0]/SCALE_KEY, a[1]/SCALE_KEY, a[2]/SCALE_KEY),
              (b[0]/SCALE_KEY, b[1]/SCALE_KEY, b[2]/SCALE_KEY)) for a, b in edges]
 
@@ -2009,35 +2009,33 @@ export_edges(build_diamond())
     def generate_lattice_octet(analysis: Dict[str, Any]) -> str:
         """Template pour OCTET lattice"""
         params = analysis.get('parameters', {})
-        
+
         block_x = params.get('block_x', 30.0)
         block_y = params.get('block_y', 30.0)
         block_z = params.get('block_z', 30.0)
         cell_size = params.get('cell_size', 15.0)
         strut_radius = params.get('strut_radius', 1.2)
         node_radius = params.get('node_radius', 1.86)
-        
+
         return f"""#!/usr/bin/env python3
+import cadquery as cq
+import math
+from pathlib import Path
+
 BLOCK_X = {block_x}
 BLOCK_Y = {block_y}
 BLOCK_Z = {block_z}
 A = {cell_size}
 R = {strut_radius}
 NODE_R = {node_radius}
-
-{{cell_size}}             # cell size
-{{strut_radius}}              # strut radius
-{{node_radius}}    # node sphere radius (1.3R-2.0R)
-OVERLAP = 0.9 * R    # strut extension at each end (0.5R-1.5R)
-
-output_dir = Path(__file__).parent / "output"
-output_dir.mkdir(exist_ok=True)
+OVERLAP = 0.9 * R
 
 EPS = 1e-6
 SCALE_KEY = 1_000_000
 
 def inside(p):
     x, y, z = p
+    return (-EPS <= x <= BLOCK_X + EPS) and (-EPS <= y <= BLOCK_Y + EPS) and (-EPS <= z <= BLOCK_Z + EPS)
 
 def pkey(p):
     return (int(round(p[0] * SCALE_KEY)), int(round(p[1] * SCALE_KEY)), int(round(p[2] * SCALE_KEY)))
@@ -2071,7 +2069,6 @@ def cylinder_between(p1, p2, radius, overlap=0.0):
         return None
     u = vunit(v)
 
-    # extend both ends so struts overlap *inside* node spheres
     p1e = vsub(p1, vmul(u, overlap))
     p2e = vadd(p2, vmul(u, overlap))
 
@@ -2083,7 +2080,6 @@ def cylinder_between(p1, p2, radius, overlap=0.0):
     return cq.Solid.makeCylinder(radius, L2, cq.Vector(*p1e), cq.Vector(*v2))
 
 def export_edges(edges):
-    # collect unique nodes
     nodes = set()
     for (p1, p2) in edges:
         nodes.add(pkey(p1))
@@ -2091,26 +2087,30 @@ def export_edges(edges):
 
     solids = []
 
-    # struts
     for (p1, p2) in edges:
         c = cylinder_between(p1, p2, R, overlap=OVERLAP)
         if c is not None:
             solids.append(c)
 
-    # node spheres (guaranteed connectivity)
     for nk in nodes:
         p = (nk[0]/SCALE_KEY, nk[1]/SCALE_KEY, nk[2]/SCALE_KEY)
+        solids.append(cq.Solid.makeSphere(NODE_R, cq.Vector(*p)))
 
-    # Create compound without fusion
     comp = cq.Compound.makeCompound(solids)
-    
-    cq.exporters.export(comp, OUT)
-    print(f"✅ STL: generated_lattice_octet.stl  (struts={len(edges)}, nodes={len(nodes)})")
 
+    output_dir = Path(__file__).parent / "output"
+    output_dir.mkdir(exist_ok=True)
+    output_path = output_dir / "generated_lattice_octet.stl"
+    cq.exporters.export(comp, str(output_path))
+    print(f"✅ STL: {{output_path}} (struts={{len(edges)}}, nodes={{len(nodes)}})")
+
+nx = int(BLOCK_X / A)
+ny = int(BLOCK_Y / A)
+nz = int(BLOCK_Z / A)
 
 def build_octet():
     edges = set()
-    
+
     # FCC part: connect face centers to corners
     for i in range(nx):
         for j in range(ny):
@@ -2134,7 +2134,7 @@ def build_octet():
                     for p in corners:
                         if inside(p):
                             edges.add(ekey(fc, p))
-    
+
     # BCC part: connect cell center to face centers
     for i in range(nx):
         for j in range(ny):
@@ -2151,7 +2151,7 @@ def build_octet():
                 for fc in fcs:
                     if inside(fc):
                         edges.add(ekey(fc, c))
-    
+
     return [((a[0]/SCALE_KEY, a[1]/SCALE_KEY, a[2]/SCALE_KEY),
              (b[0]/SCALE_KEY, b[1]/SCALE_KEY, b[2]/SCALE_KEY)) for a, b in edges]
 
