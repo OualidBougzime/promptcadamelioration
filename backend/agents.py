@@ -796,47 +796,94 @@ class ValidatorAgent:
     def _create_mesh_from_stl(self, stl_path: str) -> Dict[str, Any]:
         try:
             import struct
-            
+
+            # First, check if this is ASCII or binary STL
             with open(stl_path, 'rb') as f:
-                f.read(80)
-                num_triangles = struct.unpack('<I', f.read(4))[0]
-                
+                header = f.read(80)
+                # ASCII STL files start with "solid" (but binary can too, so check more carefully)
+                is_ascii = header.startswith(b'solid') and b'\n' in header[:80]
+
+            if is_ascii:
+                # Parse ASCII STL format
+                log.info(f"Reading ASCII STL file: {stl_path}")
                 vertices = []
                 faces = []
-                
-                for i in range(num_triangles):
-                    f.read(12)
-                    v1 = struct.unpack('<3f', f.read(12))
-                    v2 = struct.unpack('<3f', f.read(12))
-                    v3 = struct.unpack('<3f', f.read(12))
-                    
-                    base_idx = len(vertices) // 3
-                    vertices.extend(v1)
-                    vertices.extend(v2)
-                    vertices.extend(v3)
-                    
-                    faces.extend([base_idx, base_idx+1, base_idx+2])
-                    f.read(2)
-                
-                if num_triangles > 10000:
-                    step = num_triangles // 5000
-                    vertices_decimated = []
-                    faces_decimated = []
-                    for i in range(0, len(faces), step*3):
-                        if i+2 < len(faces):
-                            base = len(vertices_decimated) // 3
-                            for j in range(3):
-                                idx = faces[i+j] * 3
-                                vertices_decimated.extend(vertices[idx:idx+3])
-                            faces_decimated.extend([base, base+1, base+2])
-                    
-                    vertices = vertices_decimated
-                    faces = faces_decimated
-                
-                return {"vertices": vertices, "faces": faces, "normals": []}
-                
+
+                with open(stl_path, 'r') as f:
+                    lines = f.readlines()
+                    i = 0
+                    while i < len(lines):
+                        line = lines[i].strip()
+                        if line.startswith('facet normal'):
+                            # Read the 3 vertices for this facet
+                            # Skip "outer loop" line
+                            i += 2
+
+                            facet_verts = []
+                            for _ in range(3):
+                                vertex_line = lines[i].strip()
+                                if vertex_line.startswith('vertex'):
+                                    coords = vertex_line.split()[1:4]
+                                    facet_verts.extend([float(coords[0]), float(coords[1]), float(coords[2])])
+                                i += 1
+
+                            base_idx = len(vertices) // 3
+                            vertices.extend(facet_verts)
+                            faces.extend([base_idx, base_idx+1, base_idx+2])
+
+                            # Skip "endloop" and "endfacet"
+                            i += 2
+                        else:
+                            i += 1
+
+                num_triangles = len(faces) // 3
+                log.info(f"Loaded ASCII STL: {num_triangles} triangles")
+
+            else:
+                # Parse binary STL format
+                log.info(f"Reading binary STL file: {stl_path}")
+                with open(stl_path, 'rb') as f:
+                    f.read(80)
+                    num_triangles = struct.unpack('<I', f.read(4))[0]
+
+                    vertices = []
+                    faces = []
+
+                    for i in range(num_triangles):
+                        f.read(12)
+                        v1 = struct.unpack('<3f', f.read(12))
+                        v2 = struct.unpack('<3f', f.read(12))
+                        v3 = struct.unpack('<3f', f.read(12))
+
+                        base_idx = len(vertices) // 3
+                        vertices.extend(v1)
+                        vertices.extend(v2)
+                        vertices.extend(v3)
+
+                        faces.extend([base_idx, base_idx+1, base_idx+2])
+                        f.read(2)
+
+            # Decimate if too many triangles
+            if len(faces) // 3 > 10000:
+                log.info(f"Decimating mesh from {len(faces)//3} to ~5000 triangles")
+                step = (len(faces) // 3) // 5000
+                vertices_decimated = []
+                faces_decimated = []
+                for i in range(0, len(faces), step*3):
+                    if i+2 < len(faces):
+                        base = len(vertices_decimated) // 3
+                        for j in range(3):
+                            idx = faces[i+j] * 3
+                            vertices_decimated.extend(vertices[idx:idx+3])
+                        faces_decimated.extend([base, base+1, base+2])
+
+                vertices = vertices_decimated
+                faces = faces_decimated
+
+            return {"vertices": vertices, "faces": faces, "normals": []}
+
         except Exception as e:
-            log.warning(f"Failed to load STL: {e}")
+            log.warning(f"Failed to load STL: {e}", exc_info=True)
             return self._create_mesh()
     
     def _create_mesh(self) -> Dict[str, Any]:
