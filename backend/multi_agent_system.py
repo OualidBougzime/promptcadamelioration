@@ -399,7 +399,8 @@ class OrchestratorAgent:
                 context,
                 "Semantic Validation",
                 code,
-                prompt
+                prompt,
+                detected_type
             )
 
             # Si le Critic détecte des problèmes sémantiques, tenter de corriger AVANT exécution
@@ -427,7 +428,8 @@ class OrchestratorAgent:
                         context,
                         "Semantic Validation (Retry)",
                         code,
-                        prompt
+                        prompt,
+                        detected_type
                     )
 
                     if critic_result.status == AgentStatus.SUCCESS:
@@ -2876,9 +2878,14 @@ class CriticAgent:
 
         log.info("🔍 CriticAgent initialized")
 
-    async def critique_code(self, code: str, prompt: str) -> AgentResult:
+    async def critique_code(self, code: str, prompt: str, app_type: str = None) -> AgentResult:
         """
         Analyse le code généré pour détecter les erreurs sémantiques AVANT exécution
+
+        Args:
+            code: Generated code to validate
+            prompt: User prompt
+            app_type: Application type (e.g., 'origami', 'lion', 'lattice_bcc', etc.)
         """
 
         log.info(f"🔍 Critiquing generated code for prompt: '{prompt[:80]}...'")
@@ -2886,10 +2893,17 @@ class CriticAgent:
         issues = []
         warnings = []
 
-        # Analyse 0 : Forme générée correspond-elle au prompt ? (NOUVEAU - CRITIQUE!)
-        shape_mismatch = self._check_shape_mismatch(code, prompt)
-        if shape_mismatch:
-            issues.append(shape_mismatch)
+        # Skip CadQuery-specific shape validation for non-CadQuery templates
+        # These templates generate STL meshes directly without using CadQuery
+        NON_CADQUERY_TYPES = ['origami', 'lion']
+
+        if app_type and app_type in NON_CADQUERY_TYPES:
+            log.info(f"⏭️ Skipping CadQuery shape validation for app_type='{app_type}' (uses direct mesh generation)")
+        else:
+            # Analyse 0 : Forme générée correspond-elle au prompt ? (NOUVEAU - CRITIQUE!)
+            shape_mismatch = self._check_shape_mismatch(code, prompt)
+            if shape_mismatch:
+                issues.append(shape_mismatch)
 
         # Analyse 0b : Vérifications spécifiques par type d'objet
         glass_issue = self._check_glass_pattern(code, prompt)
