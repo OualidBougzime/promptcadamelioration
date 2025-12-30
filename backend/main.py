@@ -8,7 +8,7 @@ from typing import Optional
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse, FileResponse
+from fastapi.responses import StreamingResponse, FileResponse, Response
 from pydantic import BaseModel
 
 from agents import AnalystAgent, GeneratorAgent, ValidatorAgent
@@ -98,30 +98,31 @@ async def export_grasshopper():
     # Read STL and convert to sectioned format
     import struct
     sections = []
-    
+
     with open(_last_stl_path, 'rb') as f:
         f.read(80)  # header
         num_triangles = struct.unpack('<I', f.read(4))[0]
-        
+
         # Group triangles by Z height (sections)
         z_sections = {}
         for i in range(num_triangles):
-            f.read(12)  # normal
+            # STL binary format: normal (12 bytes), then 3 vertices (36 bytes), then attribute (2 bytes)
+            normal = struct.unpack('<3f', f.read(12))
             v1 = struct.unpack('<3f', f.read(12))
             v2 = struct.unpack('<3f', f.read(12))
             v3 = struct.unpack('<3f', f.read(12))
-            
+            f.read(2)  # attribute bytes
+
             avg_z = (v1[2] + v2[2] + v3[2]) / 3
             section_key = int(avg_z / 10) * 10  # 10mm sections
-            
+
             if section_key not in z_sections:
                 z_sections[section_key] = []
-            
+
             z_sections[section_key].append({
-                "vertices": [v1, v2, v3],
-                "normal": struct.unpack('<3f', f.read(12))
+                "vertices": [list(v1), list(v2), list(v3)],
+                "normal": list(normal)
             })
-            f.read(2)  # attribute
     
     # Convert to Grasshopper format
     gh_data = {
