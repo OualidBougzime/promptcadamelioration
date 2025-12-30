@@ -166,6 +166,7 @@ async def generate_endpoint(request: GenerateRequest):
     global _last_stl_path, _last_step_path, _last_app_type
     
     async def event_stream():
+        global _last_stl_path, _last_step_path, _last_app_type
         try:
             start_time = time.time()
             log.info(f"🚀 Starting multi-agent workflow for prompt: {request.prompt[:100]}...")
